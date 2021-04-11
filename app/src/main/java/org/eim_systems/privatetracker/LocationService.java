@@ -1,8 +1,12 @@
 package org.eim_systems.privatetracker;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,12 +21,13 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import java.util.LinkedList;
 
 public class LocationService extends Service {
     private static final String TAG = LocationService.class.getSimpleName();
-    static TrackingThread trackingThread;
+    //static TrackingThread trackingThread;
     public static final int RECORD_ON = 1;
     public static final int RECORD_PAUSE = 2;
     public static final int RECORD_OFF = 3;
@@ -35,10 +40,11 @@ public class LocationService extends Service {
     private static volatile boolean active = false;
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
+    LinkedList<Location> locations =  new LinkedList<>();
 
     @Override
     public IBinder onBind(Intent intent) {
-        trackingThread = new TrackingThread(getApplicationContext());
+        //trackingThread = new TrackingThread(getApplicationContext());
         return mMessenger.getBinder();
     }
 
@@ -46,6 +52,54 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                //todo check on and active
+                if(!locations.isEmpty()){
+                    distance += locations.getLast().distanceTo(location);
+                }
+                Log.i(TAG, location.toString());
+                locations.addLast(location);
+                Log.i(TAG, "current distance: " + distance);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        /*Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        String p = locationManager.getBestProvider(criteria, true);
+        LocationProvider locationProvider = locationManager.getProvider(p);*/
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+    }
+
+
 
     private static class IncomingHandler extends Handler {
     private final String LOCAL_TAG = IncomingHandler.class.getSimpleName();
@@ -56,7 +110,7 @@ public class LocationService extends Service {
                     Log.i(LOCAL_TAG, "RECORD_ON");
                     on = true;
                     active = true;
-                    trackingThread.start();
+                    //trackingThread.start();
                     break;
 
                 case RECORD_PAUSE:
