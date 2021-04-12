@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,16 +24,20 @@ import android.widget.TextView;
 
 import static java.lang.Thread.sleep;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements SensorEventListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 123;
+    private static final int PERMISSION_REQUEST_ACTIVITY_RECOGNITION = 1234;
     private Messenger mService = null;
 
     private boolean started = false;
     private boolean pause = true;
 
-    //todo connect service
-
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private volatile int recorded_steps = 0;
+    private volatile int steps = 0;
+    private TextView stepCounter_tw;
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -56,13 +64,15 @@ public class MainActivity extends Activity {
 
 
         if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION )!= PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
         }
         final Button start_stop = findViewById(R.id.start_stop);
         final Button pause_resume = findViewById(R.id.pause_resume);
         TextView textView  =  findViewById(R.id.distance_textview);
+        textView.setText(getString(R.string.curr_distance, String.valueOf(0), "m"));
         pause_resume.setEnabled(false);
-
+        stepCounter_tw =  findViewById(R.id.stepCounter_textView);
+        stepCounter_tw.setText(getString(R.string.stepcounter, 0));
 
         final Messenger mMessenger = new Messenger(new IncomingHandler(this, textView));
 
@@ -87,6 +97,7 @@ public class MainActivity extends Activity {
                     } catch (RemoteException e){
                         Log.e(TAG, e.getMessage());
                     }
+                    sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
 
                 }else{ //started ==true
@@ -102,12 +113,8 @@ public class MainActivity extends Activity {
                             start_stop.setText(getString(R.string.start));
                         });
                         pause_resume.setEnabled(false);
+                        sensorManager.unregisterListener(this);
                         Intent intent =  new Intent(this, ResultActivity.class);
-                       /* Log.d(TAG, "unbindService()");
-                        if(mService!=null){
-                            unbindService(mConnection);
-                            mService = null;
-                        }*/
                         startActivity(intent);
                     } catch (RemoteException e){
                         Log.e(TAG, e.getMessage());
@@ -136,7 +143,7 @@ public class MainActivity extends Activity {
                     } catch (RemoteException e){
                         Log.e(TAG, e.getMessage());
                     }
-
+                    sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
                 }else{
                     //pause it
@@ -155,9 +162,18 @@ public class MainActivity extends Activity {
                     } catch (RemoteException e){
                         Log.e(TAG, e.getMessage());
                     }
+                    sensorManager.unregisterListener(this);
                 }
             }
         });
+        //stepCounter:
+        if(checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION )!= PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[] {Manifest.permission.ACTIVITY_RECOGNITION},PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
+        }
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+
         //keeps the distance field up to date
         //todo rewrite updater as handler
         //final Handler h =  new Handler();
@@ -176,6 +192,8 @@ public class MainActivity extends Activity {
                 }
             }
         }).start();
+
+
 
     }
 
@@ -202,6 +220,32 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy()");
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.d(TAG, "onSensorChanged()");
+        if(started && !pause){
+            float[] values = event.values;
+            int i = (int) values[0];
+            if (steps != 0) {
+                steps = i - recorded_steps;
+            }
+            recorded_steps = i;
+            runOnUiThread(()->{
+                stepCounter_tw.setText(getString(R.string.stepcounter, steps));
+            });
+            Log.d(TAG, "steps: " + steps);
+
+        } else if(started && pause){
+            float[] values = event.values;
+            recorded_steps = (int) values[0];
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 
     private static class IncomingHandler extends Handler {
