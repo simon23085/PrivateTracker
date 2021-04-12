@@ -13,6 +13,6 @@
     <string name="stop">stop</string>
     <string name="pause">pause</string>
     <string name="resume">resume</string>
-    <string name="curr_distance">current distance: \n</string>
+    <string name="curr_distance">current distance: %1$s %2$s </string>
     <string name="login">login</string>
 </resources>

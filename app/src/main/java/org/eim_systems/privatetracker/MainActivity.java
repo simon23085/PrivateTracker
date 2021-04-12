@@ -18,6 +18,8 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
+import static java.lang.Thread.sleep;
+
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 123;
@@ -67,6 +69,7 @@ public class MainActivity extends Activity {
 
         start_stop.setOnClickListener(v-> {
             Log.i(TAG, "start_stop.setOnClickListener();\n");
+            Log.i(TAG, "is mService not null?" + String.valueOf( mService != null));
             if(mService !=null){
                 if(!started){
                     //start it
@@ -79,7 +82,6 @@ public class MainActivity extends Activity {
                         runOnUiThread(() -> {
                             Log.i(TAG, "UiThread, called from start_stop; started was false, now true \n" );
                             start_stop.setText(getString(R.string.stop));
-                            //start_stop.refreshDrawableState();
                         });
                         pause_resume.setEnabled(true);
                     } catch (RemoteException e){
@@ -98,9 +100,15 @@ public class MainActivity extends Activity {
                         runOnUiThread(() -> {
                             Log.i(TAG, "UiThread, called from start_stop, started was true, now false");
                             start_stop.setText(getString(R.string.start));
-                            //start_stop.refreshDrawableState();
                         });
                         pause_resume.setEnabled(false);
+                        Intent intent =  new Intent(this, ResultActivity.class);
+                       /* Log.d(TAG, "unbindService()");
+                        if(mService!=null){
+                            unbindService(mConnection);
+                            mService = null;
+                        }*/
+                        startActivity(intent);
                     } catch (RemoteException e){
                         Log.e(TAG, e.getMessage());
                     }
@@ -109,6 +117,7 @@ public class MainActivity extends Activity {
         });
         pause_resume.setOnClickListener(v-> {
             Log.i(TAG, "pause_resume.setOnClickListener() \n");
+            Log.i(TAG, "is mService not null?" + String.valueOf( mService != null));
             if(mService !=null){
                 if(pause){
                     //start it
@@ -120,7 +129,7 @@ public class MainActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                pause_resume.setText(getString(R.string.resume));
+                                pause_resume.setText(getString(R.string.pause));
                             }
                         });
 
@@ -130,7 +139,7 @@ public class MainActivity extends Activity {
 
 
                 }else{
-                    //stop it
+                    //pause it
                     try {
                         Message msg = Message.obtain(null, LocationService.RECORD_PAUSE);
                         msg.replyTo = mMessenger;
@@ -139,7 +148,7 @@ public class MainActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                pause_resume.setText(getString(R.string.pause));
+                                pause_resume.setText(getString(R.string.resume));
                             }
                         });
 
@@ -151,22 +160,28 @@ public class MainActivity extends Activity {
         });
         //keeps the distance field up to date
         //todo rewrite updater as handler
-        //Thread t = new Thread(new Updater());
-        //t.setDaemon(true);
-        //t.start();
+        //final Handler h =  new Handler();
+        new Thread(()->{
+            while(true){
+                try {
+                    sleep(1000);
+                    if(mService!=null) {
+                        //Log.i(TAG, "is mService not null?" + String.valueOf(mService != null));
+                        Message msg = Message.obtain(null, LocationService.RECORD_STATUS_IN);
+                        msg.replyTo = mMessenger;
+                        mService.send(msg);
+                    }
+                } catch (RemoteException | InterruptedException e){
+                    Log.e(TAG, e.getMessage());
+                }
+            }
+        }).start();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        /*Intent i  = new Intent(this, LocationService.class);
-        if(!bindService(i, mConnection, Context.BIND_AUTO_CREATE)){
-            Log.d(TAG, "bindService() failed");
-            unbindService(mConnection);
-            //finish();
-        }*
-         */
         bindService(new Intent(this, LocationService.class), mConnection, Context.BIND_AUTO_CREATE);
         Log.d(TAG, "bindService");
     }
@@ -174,10 +189,19 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop()");
+
         if(mService!=null){
             unbindService(mConnection);
             mService = null;
         }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
     }
 
     private static class IncomingHandler extends Handler {
@@ -193,8 +217,14 @@ public class MainActivity extends Activity {
             switch(msg.what){
                 case LocationService.RECORD_STATUS_OUT:
                     Log.i(TAG, "RECORD_STATUS_OUT");
-                    double dist = msg.arg1;
-                    String s = ctx.getString(R.string.curr_distance) + dist; //Resources.getSystem() replaced by ctx
+                    double d = (double) msg.obj;
+                    Log.i(TAG, String.valueOf(d));
+                    int i = (int) Math.round((d*100));
+                    Log.i(TAG, String.valueOf(i));
+                    double dist = ((double) i)/100.0;
+                    Log.i(TAG, String.valueOf(dist));
+                    String s = ctx.getString(R.string.curr_distance, String.valueOf(dist), "m");  //Resources.getSystem() replaced by ctx
+                    Log.i(TAG, s);
                     tv.setText(s);
                     break;
                 default:
@@ -208,16 +238,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             Log.i(Updater.class.getSimpleName(), "run");
-            while(true){
-                try {
-                    //wait(500);
-                    Message msg = Message.obtain(null, LocationService.RECORD_STATUS_IN);
-                    msg.replyTo = mMessenger;
-                    mService.send(msg);
-                } catch (RemoteException  e){
-                    Log.e(Updater.class.getSimpleName(), e.getMessage());
-                }
-            }
+
         }
     }*/
 }

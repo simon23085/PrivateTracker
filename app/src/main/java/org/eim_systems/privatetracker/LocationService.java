@@ -27,7 +27,6 @@ import java.util.LinkedList;
 
 public class LocationService extends Service {
     private static final String TAG = LocationService.class.getSimpleName();
-    //static TrackingThread trackingThread;
     public static final int RECORD_ON = 1;
     public static final int RECORD_PAUSE = 2;
     public static final int RECORD_OFF = 3;
@@ -44,7 +43,6 @@ public class LocationService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        //trackingThread = new TrackingThread(getApplicationContext());
         return mMessenger.getBinder();
     }
 
@@ -59,13 +57,15 @@ public class LocationService extends Service {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                //todo check on and active
-                if(!locations.isEmpty()){
-                    distance += locations.getLast().distanceTo(location);
+                if(on && active) {
+                    if (!locations.isEmpty()) {
+                        distance += locations.getLast().distanceTo(location);
+                    }
+                    Log.i(TAG, location.toString());
+                    locations.add(location);
+                    Log.i(TAG, "accuracy:" + location.getAccuracy());
+                    Log.i(TAG, "current distance: " + distance);
                 }
-                Log.i(TAG, location.toString());
-                locations.addLast(location);
-                Log.i(TAG, "current distance: " + distance);
             }
 
             @Override
@@ -84,6 +84,14 @@ public class LocationService extends Service {
             }
         };
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        String p  = LocationManager.GPS_PROVIDER;
+               p = locationManager.getBestProvider(criteria, true);
+        LocationProvider locationProvider = locationManager.getProvider(p);
+        Log.i(TAG, "provider:" + p);
+
+
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED
@@ -92,11 +100,8 @@ public class LocationService extends Service {
                 PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        /*Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        String p = locationManager.getBestProvider(criteria, true);
-        LocationProvider locationProvider = locationManager.getProvider(p);*/
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
+
+        locationManager.requestLocationUpdates(p, 1000, 3, locationListener);
     }
 
 
@@ -110,7 +115,6 @@ public class LocationService extends Service {
                     Log.i(LOCAL_TAG, "RECORD_ON");
                     on = true;
                     active = true;
-                    //trackingThread.start();
                     break;
 
                 case RECORD_PAUSE:
@@ -126,7 +130,7 @@ public class LocationService extends Service {
                     Log.i(LOCAL_TAG, "RECORD_STATUS_IN");
 
                     Messenger m = msg.replyTo;
-                    Message msg2 = Message.obtain(null,RECORD_STATUS_OUT, distance );
+                    Message msg2 = Message.obtain(null,RECORD_STATUS_OUT, distance);
                     try {
                         m.send(msg2);
                     } catch (RemoteException e) {
@@ -143,32 +147,5 @@ public class LocationService extends Service {
             //todo implement saveRecord (persistent)
 
         }
-    }
-    public synchronized void setOn(){
-        on = true;
-        active = true;
-    }
-    public synchronized  void setOff(){
-        on = false;
-        active = false;
-        //todo save LocationList + metadata
-        stopSelf();
-    }
-    public static synchronized void setPause(){
-        active = false;
-    }
-    public static synchronized void setResume(){
-        active = true;
-    }
-    public static synchronized void addDistance(double d){
-        distance = distance + d;
-    }
-
-    public static synchronized boolean isOn() {
-        return on;
-    }
-
-    public static synchronized boolean isActive() {
-        return active;
     }
 }
