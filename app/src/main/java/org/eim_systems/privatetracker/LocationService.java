@@ -32,14 +32,16 @@ public class LocationService extends Service {
     public static final int RECORD_OFF = 3;
     public static final int RECORD_STATUS_IN = 4;
     public static final int RECORD_STATUS_OUT = 5;
-    private static double distance = 0;
-    //service is running
+    public static final int RECORD_ALTITUDE = 6;
+
     private static volatile boolean on = false;
-    //status status about tracking or pause
     private static volatile boolean active = false;
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
     LinkedList<Location> locations =  new LinkedList<>();
+    private static double distance = 0;
+    private static double up = 0;
+    private static double down = 0;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,6 +62,13 @@ public class LocationService extends Service {
                 if(on && active) {
                     if (!locations.isEmpty()) {
                         distance += locations.getLast().distanceTo(location);
+                        double oa = locations.getLast().getAltitude();
+                        double na = location.getAltitude();
+                        if(na-oa >0){
+                            up += na-oa;
+                        }else {
+                            down += Math.abs(na-oa);
+                        }
                     }
                     Log.i(TAG, location.toString());
                     locations.add(location);
@@ -126,6 +135,7 @@ public class LocationService extends Service {
                     saveRecord();
                     active = false;
                     on = false;
+                    //todo create class for altitude and distance infos, reply to RECORD_OFF with RECORD_ALTITUDE
                 case RECORD_STATUS_IN:
                     Log.i(LOCAL_TAG, "RECORD_STATUS_IN");
 
