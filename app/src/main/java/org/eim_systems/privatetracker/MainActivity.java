@@ -21,6 +21,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static java.lang.Thread.sleep;
 
@@ -35,7 +36,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private Sensor sensor;
-    private volatile int recorded_steps = 0;
+    private volatile int previous_steps = 0;
     private volatile int steps = 0;
     private TextView stepCounter_tw;
 
@@ -46,7 +47,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             mService = new Messenger(service);
             started = false;
             pause = true;
-            Log.i(TAG, "is mService not null?" + String.valueOf( mService != null));
+            Log.i(TAG, "is mService not null?" + String.valueOf(mService != null));
         }
 
         @Override
@@ -63,25 +64,25 @@ public class MainActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_main);
 
 
-        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION )!= PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
         }
         final Button start_stop = findViewById(R.id.start_stop);
         final Button pause_resume = findViewById(R.id.pause_resume);
-        TextView textView  =  findViewById(R.id.distance_textview);
+        TextView textView = findViewById(R.id.distance_textview);
         textView.setText(getString(R.string.curr_distance, String.valueOf(0), "m"));
         pause_resume.setEnabled(false);
-        stepCounter_tw =  findViewById(R.id.stepCounter_textView);
+        stepCounter_tw = findViewById(R.id.stepCounter_textView);
         stepCounter_tw.setText(getString(R.string.stepcounter, 0));
 
         final Messenger mMessenger = new Messenger(new IncomingHandler(this, textView));
 
 
-        start_stop.setOnClickListener(v-> {
+        start_stop.setOnClickListener(v -> {
             Log.i(TAG, "start_stop.setOnClickListener();\n");
-            Log.i(TAG, "is mService not null?" + String.valueOf( mService != null));
-            if(mService !=null){
-                if(!started){
+            Log.i(TAG, "is mService not null?" + String.valueOf(mService != null));
+            if (mService != null) {
+                if (!started) {
                     //start it
                     started = true;
                     pause = false;
@@ -90,17 +91,19 @@ public class MainActivity extends Activity implements SensorEventListener {
                         msg.replyTo = mMessenger;
                         mService.send(msg);
                         runOnUiThread(() -> {
-                            Log.i(TAG, "UiThread, called from start_stop; started was false, now true \n" );
+                            Log.i(TAG, "UiThread, called from start_stop; started was false, now true \n");
                             start_stop.setText(getString(R.string.stop));
                         });
+
                         pause_resume.setEnabled(true);
-                    } catch (RemoteException e){
+                        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+                        Log.d(TAG, "StepCounterListener registered");
+                    } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
 
-                }else{ //started ==true
+                } else { //started ==true
                     //stop it
                     started = false;
                     pause = true;
@@ -114,19 +117,20 @@ public class MainActivity extends Activity implements SensorEventListener {
                         });
                         pause_resume.setEnabled(false);
                         sensorManager.unregisterListener(this);
-                        Intent intent =  new Intent(this, ResultActivity.class);
+                        Log.d(TAG, "StepCounterListener unregistered");
+                        Intent intent = new Intent(this, ResultActivity.class);
                         startActivity(intent);
-                    } catch (RemoteException e){
+                    } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
                     }
                 }
             }
         });
-        pause_resume.setOnClickListener(v-> {
+        pause_resume.setOnClickListener(v -> {
             Log.i(TAG, "pause_resume.setOnClickListener() \n");
-            Log.i(TAG, "is mService not null?" + String.valueOf( mService != null));
-            if(mService !=null){
-                if(pause){
+            Log.i(TAG, "is mService not null?" + String.valueOf(mService != null));
+            if (mService != null) {
+                if (pause) {
                     //start it
                     try {
                         Message msg = Message.obtain(null, LocationService.RECORD_ON);
@@ -140,12 +144,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                             }
                         });
 
-                    } catch (RemoteException e){
+                    } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
 
-                }else{
+
+                } else {
                     //pause it
                     try {
                         Message msg = Message.obtain(null, LocationService.RECORD_PAUSE);
@@ -159,40 +163,42 @@ public class MainActivity extends Activity implements SensorEventListener {
                             }
                         });
 
-                    } catch (RemoteException e){
+                    } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
                     }
-                    sensorManager.unregisterListener(this);
+
                 }
             }
         });
         //stepCounter:
-        if(checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION )!= PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[] {Manifest.permission.ACTIVITY_RECOGNITION},PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
+        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
         }
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
+        if (sensor == null) {
+            Toast.makeText(this, "No sensor detected on this device", Toast.LENGTH_SHORT).show();
+        }
+        Log.d(TAG, "\n \n  pedometer: \n " + sensor.getName() + sensor.getStringType() + sensor.isDynamicSensor() + sensor.getVendor() + sensor.getVersion() + sensor.getId());
 
         //keeps the distance field up to date
         //todo rewrite updater as handler
         //final Handler h =  new Handler();
-        new Thread(()->{
-            while(true){
+        new Thread(() -> {
+            while (true) {
                 try {
-                    sleep(1000);
-                    if(mService!=null) {
+                    sleep(2000);
+                    if (mService != null) {
                         //Log.i(TAG, "is mService not null?" + String.valueOf(mService != null));
                         Message msg = Message.obtain(null, LocationService.RECORD_STATUS_IN);
                         msg.replyTo = mMessenger;
                         mService.send(msg);
                     }
-                } catch (RemoteException | InterruptedException e){
+                } catch (RemoteException | InterruptedException e) {
                     Log.e(TAG, e.getMessage());
                 }
             }
         }).start();
-
 
 
     }
@@ -209,7 +215,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onStop();
         Log.d(TAG, "onStop()");
 
-        if(mService!=null){
+        if (mService != null) {
             unbindService(mConnection);
             mService = null;
         }
@@ -223,24 +229,25 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
+    public void onSensorChanged(SensorEvent event) { //current -laststoredsteps
         Log.d(TAG, "onSensorChanged()");
-        if(started && !pause){
-            float[] values = event.values;
-            int i = (int) values[0];
-            if (steps != 0) {
-                steps = i - recorded_steps;
-            }
-            recorded_steps = i;
-            runOnUiThread(()->{
+        Log.d(TAG, "onSensorChanged() and started");
+        float[] values = event.values;
+        if (!pause) {
+            int current_steps = (int) values[0];
+            Log.d(TAG, "steps on StepCounter:" + current_steps);
+            steps = current_steps - previous_steps;
+            previous_steps = current_steps;
+            runOnUiThread(() -> {
                 stepCounter_tw.setText(getString(R.string.stepcounter, steps));
             });
             Log.d(TAG, "steps: " + steps);
 
-        } else if(started && pause){
-            float[] values = event.values;
-            recorded_steps = (int) values[0];
+        } else {
+            previous_steps = (int) values[0];
+            Log.d(TAG, "steps on StepCounter:" + previous_steps);
         }
+
     }
 
     @Override
@@ -251,21 +258,22 @@ public class MainActivity extends Activity implements SensorEventListener {
     private static class IncomingHandler extends Handler {
         private final Context ctx;
         private final TextView tv;
-        private IncomingHandler(Context ctx, TextView tv){
+
+        private IncomingHandler(Context ctx, TextView tv) {
             this.ctx = ctx;
-            this.tv  =  tv;
+            this.tv = tv;
         }
 
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what){
+            switch (msg.what) {
                 case LocationService.RECORD_STATUS_OUT:
                     Log.i(TAG, "RECORD_STATUS_OUT");
                     double d = (double) msg.obj;
                     Log.i(TAG, String.valueOf(d));
-                    int i = (int) Math.round((d*100));
+                    int i = (int) Math.round((d * 100));
                     Log.i(TAG, String.valueOf(i));
-                    double dist = ((double) i)/100.0;
+                    double dist = ((double) i) / 100.0;
                     Log.i(TAG, String.valueOf(dist));
                     String s = ctx.getString(R.string.curr_distance, String.valueOf(dist), "m");  //Resources.getSystem() replaced by ctx
                     Log.i(TAG, s);

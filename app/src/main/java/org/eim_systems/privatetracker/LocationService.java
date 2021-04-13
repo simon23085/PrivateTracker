@@ -101,7 +101,7 @@ public class LocationService extends Service {
             return;
         }
 
-        locationManager.requestLocationUpdates(p, 1000, 2, locationListener);
+        locationManager.requestLocationUpdates(p, 2000, 5, locationListener);
     }
 
 
