@@ -94,7 +94,15 @@ public class LocationService extends Service {
         };
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setAccuracy(Criteria.ACCURACY_FINE); //ACCURACY_COARSE
+        criteria.setPowerRequirement(Criteria.POWER_MEDIUM); //or low?
+        criteria.setAltitudeRequired(true);
+        //criteria.setCostAllowed(true);
+
+        //API level 9 and up
+        criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+        criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+        //todo https://stackoverflow.com/questions/3289039/google-maps-apps-with-mapview-have-different-current-positions
         String p  = LocationManager.GPS_PROVIDER;
                p = locationManager.getBestProvider(criteria, true);
         LocationProvider locationProvider = locationManager.getProvider(p);
