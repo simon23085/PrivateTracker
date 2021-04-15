@@ -32,3 +32,7 @@ pipelines:
               - gradle    # caching speed up subsequent execution https://support.atlassian.com/bitbucket-cloud/docs/cache-dependencies/
             script:
               - ./gradlew testDebugUnitTest # test reporting is automatically enabled https://support.atlassian.com/bitbucket-cloud/docs/test-reporting-in-pipelines/
+              
+        - step:
+            script:
+              - bash ./gradlew build
