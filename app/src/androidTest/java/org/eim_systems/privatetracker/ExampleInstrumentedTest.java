@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+    //70percent small, 20percent medium and 10percent large tests
     @Test
     public void useAppContext() {
         // Context of the app under test.

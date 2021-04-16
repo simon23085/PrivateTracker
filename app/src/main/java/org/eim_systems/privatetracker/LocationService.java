@@ -33,6 +33,7 @@ public class LocationService extends Service {
     public static final int RECORD_STATUS_IN = 4;
     public static final int RECORD_STATUS_OUT = 5;
     public static final int RECORD_ALTITUDE = 6;
+    public static final int ERROR = 0;
 
     private static volatile boolean on = false;
     private static volatile boolean active = false;
@@ -138,16 +139,43 @@ public class LocationService extends Service {
                     break;
 
                 case RECORD_PAUSE:
+                    if(!active){
+                        Messenger m = msg.replyTo;
+                        Message msg2 = Message.obtain(null,ERROR);
+                        try {
+                            m.send(msg2);
+                        } catch (RemoteException e) {
+                            Log.e(LOCAL_TAG, e.getMessage());
+                        }
+                    }
                     Log.i(LOCAL_TAG, "RECORD_PAUSE");
                     active = false;
                     break;
                 case RECORD_OFF:
                     Log.i(LOCAL_TAG, "RECORD_OFF");
+                    if(!on){
+                        Messenger m = msg.replyTo;
+                        Message msg2 = Message.obtain(null,ERROR);
+                        try {
+                            m.send(msg2);
+                        } catch (RemoteException e) {
+                            Log.e(LOCAL_TAG, e.getMessage());
+                        }
+                    }
                     saveRecord();
                     active = false;
                     on = false;
                     //todo create class for altitude and distance infos, reply to RECORD_OFF with RECORD_ALTITUDE
                 case RECORD_STATUS_IN:
+                    if(!active || !on){
+                        Messenger m = msg.replyTo;
+                        Message msg2 = Message.obtain(null,ERROR);
+                        try {
+                            m.send(msg2);
+                        } catch (RemoteException e) {
+                            Log.e(LOCAL_TAG, e.getMessage());
+                        }
+                    }
                     Log.i(LOCAL_TAG, "RECORD_STATUS_IN");
 
                     Messenger m = msg.replyTo;

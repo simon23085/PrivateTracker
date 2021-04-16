@@ -179,7 +179,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (sensor == null) {
             Toast.makeText(this, "No sensor detected on this device", Toast.LENGTH_SHORT).show();
         }
-        Log.d(TAG, "\n \n  pedometer: \n " + sensor.getName() + sensor.getStringType() + sensor.isDynamicSensor() + sensor.getVendor() + sensor.getVersion() + sensor.getId());
+        //Log.d(TAG, "\n \n  pedometer: \n " + sensor.getName() + sensor.getStringType() + sensor.isDynamicSensor() + sensor.getVendor() + sensor.getVersion() + sensor.getId());
 
         //keeps the distance field up to date
         //todo rewrite updater as handler
@@ -279,6 +279,9 @@ public class MainActivity extends Activity implements SensorEventListener {
                     Log.i(TAG, s);
                     tv.setText(s);
                     break;
+                    case LocationService.ERROR:
+                        Log.e(TAG, "got error from LocationService");
+                        break;
                 default:
                     Log.i(TAG, "default" + msg.what + " \n ");
                     super.handleMessage(msg);
