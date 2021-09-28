@@ -23,7 +23,8 @@ public class LinearRegression {
     private double a;
     private double b;
     public synchronized void appendLocation(Location location){
-        //todo add location to processingQueue
+        processingQueue.add(location);
+        process();
     }
     public synchronized List<Location> getLocations(){
         //todo change to copy
@@ -78,5 +79,12 @@ public class LinearRegression {
         }
         a = (xy - n * x * y) / (xes);
         b = y - a * x;
+    }
+    public double getDistance(){
+        double distance = 0;
+        for(int i = 1; i < locations.size(); i++){
+            distance += locations.get(i-1).distanceTo(locations.get(i));
+        }
+        return distance;
     }
 }

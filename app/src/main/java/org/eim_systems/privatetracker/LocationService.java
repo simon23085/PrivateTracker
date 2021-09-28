@@ -1,8 +1,6 @@
 package org.eim_systems.privatetracker;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -20,10 +18,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-
-import java.util.LinkedList;
 
 public class LocationService extends Service {
     private static final String TAG = LocationService.class.getSimpleName();
@@ -38,8 +33,9 @@ public class LocationService extends Service {
     private static volatile boolean on = false;
     private static volatile boolean active = false;
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
+    private LinearRegression linearRegression;
 
-    LinkedList<Location> locations =  new LinkedList<>();
+    //LinkedList<Location> locations =  new LinkedList<>();
     private static double distance = 0;
     private static double up = 0;
     private static double down = 0;
@@ -51,18 +47,20 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        linearRegression = new LinearRegression();
         LocationListener locationListener = new LocationListener() {
             //todo use implementation of linear regression here
             @Override
             public void onLocationChanged(Location location) {
-                if(on && active) {
-                    if (!locations.isEmpty()) {
+                if (on && active) {
+                    /*if (!locations.isEmpty()) {
                         distance += locations.getLast().distanceTo(location);
                         double oa = locations.getLast().getAltitude();
                         double na = location.getAltitude();
@@ -71,12 +69,14 @@ public class LocationService extends Service {
                         }else {
                             down += Math.abs(na-oa);
                         }
-                    }
-                    Log.i(TAG, location.toString());
-                    locations.add(location);
-                    Log.i(TAG, "accuracy:" + location.getAccuracy());
-                    Log.i(TAG, "current distance: " + distance);
+                     */
+                    linearRegression.appendLocation(location);
+                    distance = linearRegression.getDistance();
                 }
+                Log.i(TAG, location.toString());
+                //locations.add(location);
+                Log.i(TAG, "accuracy:" + location.getAccuracy());
+                Log.i(TAG, "current distance: " + distance);
             }
 
             @Override
@@ -98,17 +98,18 @@ public class LocationService extends Service {
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE); //ACCURACY_COARSE or HIGH
         //criteria.setPowerRequirement(Criteria.POWER_MEDIUM); //or low?
-        criteria.setAltitudeRequired(true);
+        criteria.setAltitudeRequired(false);
+        //todo enable altitude?
         //criteria.setCostAllowed(true);
 
         //API level 9 and up
         criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
         criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
         //todo https://stackoverflow.com/questions/3289039/google-maps-apps-with-mapview-have-different-current-positions
-        String p  = LocationManager.GPS_PROVIDER;
+        String p = LocationManager.GPS_PROVIDER;
         p = locationManager.getBestProvider(criteria, false);
         LocationProvider locationProvider = locationManager.getProvider(p);
-        if(!locationManager.isLocationEnabled()|| !locationManager.isProviderEnabled(p)){
+        if (!locationManager.isLocationEnabled() || !locationManager.isProviderEnabled(p)) {
             Log.d(TAG, "provider " + p + " not enabled or location is disabled");
         }
         Log.i(TAG, "provider:" + p);
@@ -127,12 +128,12 @@ public class LocationService extends Service {
     }
 
 
-
     private static class IncomingHandler extends Handler {
-    private final String LOCAL_TAG = IncomingHandler.class.getSimpleName();
+        private final String LOCAL_TAG = IncomingHandler.class.getSimpleName();
+
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what){
+            switch (msg.what) {
                 case RECORD_ON:
                     Log.i(LOCAL_TAG, "RECORD_ON");
                     on = true;
@@ -140,9 +141,9 @@ public class LocationService extends Service {
                     break;
 
                 case RECORD_PAUSE:
-                    if(!active){
+                    if (!active) {
                         Messenger m = msg.replyTo;
-                        Message msg2 = Message.obtain(null,ERROR);
+                        Message msg2 = Message.obtain(null, ERROR);
                         try {
                             m.send(msg2);
                         } catch (RemoteException e) {
@@ -154,9 +155,9 @@ public class LocationService extends Service {
                     break;
                 case RECORD_OFF:
                     Log.i(LOCAL_TAG, "RECORD_OFF");
-                    if(!on){
+                    if (!on) {
                         Messenger m = msg.replyTo;
-                        Message msg2 = Message.obtain(null,ERROR);
+                        Message msg2 = Message.obtain(null, ERROR);
                         try {
                             m.send(msg2);
                         } catch (RemoteException e) {
@@ -168,9 +169,9 @@ public class LocationService extends Service {
                     on = false;
                     //todo create class for altitude and distance infos, reply to RECORD_OFF with RECORD_ALTITUDE
                 case RECORD_STATUS_IN:
-                    if(!active || !on){
+                    if (!active || !on) {
                         Messenger m = msg.replyTo;
-                        Message msg2 = Message.obtain(null,ERROR);
+                        Message msg2 = Message.obtain(null, ERROR);
                         try {
                             m.send(msg2);
                         } catch (RemoteException e) {
@@ -180,7 +181,7 @@ public class LocationService extends Service {
                     Log.i(LOCAL_TAG, "RECORD_STATUS_IN");
 
                     Messenger m = msg.replyTo;
-                    Message msg2 = Message.obtain(null,RECORD_STATUS_OUT, distance);
+                    Message msg2 = Message.obtain(null, RECORD_STATUS_OUT, distance);
                     try {
                         m.send(msg2);
                     } catch (RemoteException e) {
