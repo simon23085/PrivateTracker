@@ -58,6 +58,7 @@ public class LocationService extends Service {
     public void onCreate() {
         super.onCreate();
         LocationListener locationListener = new LocationListener() {
+            //todo use implementation of linear regression here
             @Override
             public void onLocationChanged(Location location) {
                 if(on && active) {
