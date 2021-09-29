@@ -6,4 +6,73 @@
     android:layout_height="match_parent"
     tools:context=".ResultActivity">
 
+    <TextView
+        android:id="@+id/headLine_Result"
+        android:layout_width="186dp"
+        android:layout_height="59dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="106dp"
+        tools:layout_editor_absoluteY="61dp" />
+
+    <TextView
+        android:id="@+id/result_distance_tv"
+        android:layout_width="88dp"
+        android:layout_height="37dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="85dp"
+        tools:layout_editor_absoluteY="228dp" />
+
+    <TextView
+        android:id="@+id/result_up_tv"
+        android:layout_width="93dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="48dp"
+        android:text="TextView"
+        app:layout_constraintTop_toBottomOf="@+id/result_distance_tv"
+        tools:layout_editor_absoluteX="85dp" />
+
+    <TextView
+        android:id="@+id/result_down_tv"
+        android:layout_width="90dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="28dp"
+        android:text="TextView"
+        app:layout_constraintTop_toBottomOf="@+id/result_up_tv"
+        tools:layout_editor_absoluteX="85dp" />
+
+    <Space
+        android:layout_width="44dp"
+        android:layout_height="29dp"
+        app:layout_constraintEnd_toStartOf="@+id/result_distance_tv"
+        app:layout_constraintHorizontal_bias="0.258"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="238dp" />
+
+    <TextView
+        android:id="@+id/result_distance"
+        android:layout_width="88dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="48dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/result_distance_tv"
+        tools:layout_editor_absoluteY="228dp" />
+
+    <TextView
+        android:id="@+id/result_up"
+        android:layout_width="89dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="48dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/result_up_tv"
+        tools:layout_editor_absoluteY="313dp" />
+
+    <TextView
+        android:id="@+id/result_down"
+        android:layout_width="87dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="60dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/result_down_tv"
+        tools:layout_editor_absoluteY="377dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

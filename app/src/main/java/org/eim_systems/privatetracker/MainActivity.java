@@ -12,6 +12,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -24,6 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import static java.lang.Thread.sleep;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -39,6 +43,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private volatile int previous_steps = 0;
     private volatile int steps = 0;
     private TextView stepCounter_tw;
+    private static ArrayList<Location> locationList;
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -119,6 +124,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                         sensorManager.unregisterListener(this);
                         Log.d(TAG, "StepCounterListener unregistered");
                         Intent intent = new Intent(this, ResultActivity.class);
+                        intent.putExtra("locations", locationList);
                         startActivity(intent);
                     } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
@@ -281,6 +287,15 @@ public class MainActivity extends Activity implements SensorEventListener {
                     break;
                     case LocationService.ERROR:
                         Log.e(TAG, "got error from LocationService");
+                        break;
+                    case LocationService.RECORD_DATA_OUT:
+                        Log.i(TAG, "RECORD_DATA_OUT");
+                        if(msg.obj instanceof ArrayList){
+                            locationList = (ArrayList<Location>) msg.obj;
+                        } else {
+                            Log.e(TAG, "received Data is not an instance of List");
+                        }
+
                         break;
                 default:
                     Log.i(TAG, "default" + msg.what + " \n ");

@@ -20,6 +20,9 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LocationService extends Service {
     private static final String TAG = LocationService.class.getSimpleName();
     public static final int RECORD_ON = 1;
@@ -27,18 +30,17 @@ public class LocationService extends Service {
     public static final int RECORD_OFF = 3;
     public static final int RECORD_STATUS_IN = 4;
     public static final int RECORD_STATUS_OUT = 5;
-    public static final int RECORD_ALTITUDE = 6;
+    public static final int RECORD_DATA_OUT = 6;
     public static final int ERROR = 0;
 
     private static volatile boolean on = false;
     private static volatile boolean active = false;
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
-    private LinearRegression linearRegression;
+    private static LinearRegression linearRegression;
 
-    //LinkedList<Location> locations =  new LinkedList<>();
+
     private static double distance = 0;
-    private static double up = 0;
-    private static double down = 0;
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -60,16 +62,6 @@ public class LocationService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 if (on && active) {
-                    /*if (!locations.isEmpty()) {
-                        distance += locations.getLast().distanceTo(location);
-                        double oa = locations.getLast().getAltitude();
-                        double na = location.getAltitude();
-                        if(na-oa >0){
-                            up += na-oa;
-                        }else {
-                            down += Math.abs(na-oa);
-                        }
-                     */
                     linearRegression.appendLocation(location);
                     distance = linearRegression.getDistance();
                 }
@@ -123,8 +115,8 @@ public class LocationService extends Service {
                 PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        locationManager.requestLocationUpdates(p, 2000, 5, locationListener);
+        //todo check minTime and minDistance values
+        locationManager.requestLocationUpdates(p, 500, 0, locationListener);
     }
 
 
@@ -152,6 +144,8 @@ public class LocationService extends Service {
                     }
                     Log.i(LOCAL_TAG, "RECORD_PAUSE");
                     active = false;
+                    distance = linearRegression.getTotalDistance();
+                    //todo
                     break;
                 case RECORD_OFF:
                     Log.i(LOCAL_TAG, "RECORD_OFF");
@@ -164,10 +158,17 @@ public class LocationService extends Service {
                             Log.e(LOCAL_TAG, e.getMessage());
                         }
                     }
-                    saveRecord();
                     active = false;
                     on = false;
-                    //todo create class for altitude and distance infos, reply to RECORD_OFF with RECORD_ALTITUDE
+                    distance = linearRegression.getTotalDistance();
+                    try {
+                        Messenger m = msg.replyTo;
+                        Log.i(TAG, "RECORD_DATA_OUT");
+                        Message msg2 = Message.obtain(null,  RECORD_DATA_OUT, linearRegression.getLocations());
+                        m.send(msg2);
+                    } catch (RemoteException e) {
+                        Log.e(LOCAL_TAG, e.getMessage());
+                    }
                 case RECORD_STATUS_IN:
                     if (!active || !on) {
                         Messenger m = msg.replyTo;
@@ -194,9 +195,5 @@ public class LocationService extends Service {
             }
         }
 
-        private void saveRecord() {
-            //todo implement saveRecord (persistent)
-
-        }
     }
 }

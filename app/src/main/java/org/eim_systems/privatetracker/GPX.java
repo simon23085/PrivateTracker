@@ -23,7 +23,8 @@ public class GPX {
         String name = "<name>" + n + "</name><trkseg>\n";
 
         String seg = "";
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(); //new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
         for(Location location : locationList){
             seg += "<trkpt lat=\"" + location.getLatitude() + "\" lon=\"" + location.getLongitude() + "\"><time>" + dateFormat.format(new Date(location.getTime())) + "</time></trkpt>\n";
         }
