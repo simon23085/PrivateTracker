@@ -16,4 +16,8 @@
     <string name="curr_distance">current distance: %1$s %2$s </string>
     <string name="login">login</string>
     <string name="stepcounter">%1$d steps</string>
+    <string name="result_headline">Your Results:</string>
+    <string name="distance">distance:</string>
+    <string name="up">up:</string>
+    <string name="down">down:</string>
 </resources>

@@ -164,7 +164,10 @@ public class LocationService extends Service {
                     try {
                         Messenger m = msg.replyTo;
                         Log.i(TAG, "RECORD_DATA_OUT");
-                        Message msg2 = Message.obtain(null,  RECORD_DATA_OUT, linearRegression.getLocations());
+                        Message msg2 = Message.obtain(null,  RECORD_DATA_OUT);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("obj", new Result(linearRegression.getLocations()));
+                        msg2.setData(bundle);
                         m.send(msg2);
                     } catch (RemoteException e) {
                         Log.e(LOCAL_TAG, e.getMessage());

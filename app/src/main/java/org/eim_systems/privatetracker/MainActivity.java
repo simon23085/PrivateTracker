@@ -43,7 +43,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private volatile int previous_steps = 0;
     private volatile int steps = 0;
     private TextView stepCounter_tw;
-    private static ArrayList<Location> locationList;
+    private static Result result;
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -123,9 +123,28 @@ public class MainActivity extends Activity implements SensorEventListener {
                         pause_resume.setEnabled(false);
                         sensorManager.unregisterListener(this);
                         Log.d(TAG, "StepCounterListener unregistered");
-                        Intent intent = new Intent(this, ResultActivity.class);
-                        intent.putExtra("locations", locationList);
-                        startActivity(intent);
+                        if(result==null){
+                            Log.e(TAG, "result obj is null");
+                        }
+                        Context context = getApplicationContext();
+                        //todo run it on a extra thread with a delay to wait that result is set
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                while(result==null){
+                                    try {
+                                        wait(100);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Intent intent = new Intent(context, ResultActivity.class);
+                                    intent.putExtra("result", result);
+                                    startActivity(intent);
+
+                                }
+                            }
+                        }).start();
+
                     } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
                     }
@@ -290,12 +309,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                         break;
                     case LocationService.RECORD_DATA_OUT:
                         Log.i(TAG, "RECORD_DATA_OUT");
-                        if(msg.obj instanceof ArrayList){
-                            locationList = (ArrayList<Location>) msg.obj;
+                        result = (Result) msg.getData().get("obj");
+                        if(result != null){
+                            Log.i(TAG, "result object received");
                         } else {
-                            Log.e(TAG, "received Data is not an instance of List");
+                            Log.e(TAG, "result object not received or was null");
                         }
-
                         break;
                 default:
                     Log.i(TAG, "default" + msg.what + " \n ");

@@ -2,19 +2,19 @@ package org.eim_systems.privatetracker;
 
 import android.location.Location;
 
-import org.jetbrains.annotations.TestOnly;
-
-import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
+
+/**
+ *  max is the number where linear regression is applied to
+ *  min is the minimal number of locations required to process the linear regression
+ *  a linear regression parameter for latitude
+ *  b linear regression parameter for longitude
+ */
 public class LinearRegression {
-    /**
-     * @param max is the number where linear regression is applied to
-     * @param min is the minimal number of locations required to process the linear regression
-     */
+
     private static final int max = 10;
     private static final int min = 5;
     private final ArrayList<Location> processingQueue = new ArrayList<>();
@@ -22,10 +22,6 @@ public class LinearRegression {
 
     //test only
     private final ArrayList<Location> debugList = new ArrayList<>();
-    /**
-     * @param a linear regression parameter for latitude
-     * @param b linear regression parameter for longitude
-     */
     private double a;
     private double b;
 
@@ -35,15 +31,17 @@ public class LinearRegression {
     }
 
     public synchronized List<Location> getLocations() {
-        //todo change to copy
-        //return Collections.unmodifiableList(locations);
-        return locations;
+        return Collections.unmodifiableList(locations);
+        //return locations;
     }
 
+    /**
+     * trim the list to length max and add the elements to the locations list,
+     * then calculate the average of x(latitude) and y (longitude) used in linear regression,
+     * after this, calculate a and b used for linear regression
+     */
     private void process() {
-        /**
-         * trim the list to length max and add the elements to the locations list
-         */
+
         double n = processingQueue.size();
         System.out.println("processingQueue size: " + n);
         if (n < min) {
@@ -52,11 +50,6 @@ public class LinearRegression {
         if (n >= max && n >= min) {
             apply((int) n - max);
         }
-        /**
-         * calculate the average of x(latitude) and y (longitude) used in linear regression
-         * then calculate a and b used for correction
-         */
-        //todo: calculate the average of x and y, calculate a and  b
         double x, y;
         double sumLat = 0;
         double sumLon = 0;
@@ -91,7 +84,7 @@ public class LinearRegression {
         System.out.println("b: " + b + "\n");
     }
 
-    public double getDistance() {
+    public synchronized double getDistance() {
         double distance = 0;
         for (int i = 1; i < locations.size(); i++) {
             distance += locations.get(i - 1).distanceTo(locations.get(i));
@@ -116,11 +109,12 @@ public class LinearRegression {
             debugList.add(location);
         }
     }
+    /**
+     first processes the complete processingQueue,
+     applying linear regression and then returning the total distance
+     */
+    public synchronized double getTotalDistance() {
 
-    public double getTotalDistance() {
-        /**
-         first processes the complete processingQueue, applying linear regression and then returning the total distance
-         */
         process();
         if (a == 0 && b == 0){
             return 0;
