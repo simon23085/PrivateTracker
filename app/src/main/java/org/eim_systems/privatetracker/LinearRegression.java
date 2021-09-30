@@ -3,15 +3,13 @@ package org.eim_systems.privatetracker;
 import android.location.Location;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 
 /**
- *  max is the number where linear regression is applied to
- *  min is the minimal number of locations required to process the linear regression
- *  a linear regression parameter for latitude
- *  b linear regression parameter for longitude
+ * max is the number where linear regression is applied to
+ * min is the minimal number of locations required to process the linear regression
+ * a linear regression parameter for latitude
+ * b linear regression parameter for longitude
  */
 public class LinearRegression {
 
@@ -30,9 +28,9 @@ public class LinearRegression {
         process();
     }
 
-    public synchronized List<Location> getLocations() {
-        return Collections.unmodifiableList(locations);
-        //return locations;
+    public synchronized ArrayList<Location> getLocations() {
+        //return Collections.unmodifiableList(locations);
+        return locations;
     }
 
     /**
@@ -91,7 +89,8 @@ public class LinearRegression {
         }
         return distance;
     }
-    private void apply(int m){
+
+    private void apply(int m) {
         for (int i = 0; i < m; i++) {
             Location location = processingQueue.remove(0);
             System.out.println("removed elem: \n :" + location.toString());
@@ -101,6 +100,7 @@ public class LinearRegression {
 
             location1.setLongitude(location.getLatitude() * a + b);
             location1.setLatitude(location.getLatitude());
+            location1.setAltitude(location.getAltitude());
             System.out.println("optimization: \n");
             System.out.println("longitude: " + location.getLongitude());
             System.out.println("latitude: " + location.getLatitude());
@@ -109,25 +109,26 @@ public class LinearRegression {
             debugList.add(location);
         }
     }
+
     /**
-     first processes the complete processingQueue,
-     applying linear regression and then returning the total distance
+     * first processes the complete processingQueue,
+     * applying linear regression and then returning the total distance
      */
     public synchronized double getTotalDistance() {
 
         process();
-        if (a == 0 && b == 0){
+        if (a == 0 && b == 0) {
             return 0;
         }
 
         apply(processingQueue.size());
         double distanceOpt = getDistance();
         double distanceOri = getDebugDistance();
-        System.out.println("\n \n distance between original Locations: \n" + distanceOri + " \n distance between optimized locations: \n" + distanceOpt + "\n total diff:" + (distanceOri - distanceOpt) );
+        System.out.println("\n \n distance between original Locations: \n" + distanceOri + " \n distance between optimized locations: \n" + distanceOpt + "\n total diff:" + (distanceOri - distanceOpt));
         return distanceOpt;
     }
 
-    private double getDebugDistance(){
+    private double getDebugDistance() {
         double distance = 0;
         for (int i = 1; i < debugList.size(); i++) {
             distance += debugList.get(i - 1).distanceTo(debugList.get(i));

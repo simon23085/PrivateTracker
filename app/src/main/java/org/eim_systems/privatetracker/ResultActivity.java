@@ -24,22 +24,30 @@ public class ResultActivity extends Activity {
         down_tv = findViewById(R.id.result_down);
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
-        result = (Result)getIntent().getSerializableExtra("result");
-        if(result == null){
+        result = (Result) getIntent().getParcelableExtra("result");
+        if (result == null) {
             System.out.println("result data is null");
             Log.e(TAG, "result is null");
-        }else {
+        } else {
             System.out.println("data in ResultActivity retrieved");
-            distance_tv.setText(result.getDistance()+"");
-            up_tv.setText(result.getUp()+"");
-            down_tv.setText(result.getDown()+"");
+            distance_tv.setText(round(result.getDistance()));
+            up_tv.setText(round(result.getUp()));
+            down_tv.setText(round(result.getDown()));
         }
 
 
-
+    }
+    private String round(double d){
+        if (d>=1000){
+            return ( ((double) Math.round(d))/1000 + " km");
+        }else{
+            double l = Math.round(d*100);
+            return (l/100) + " m";
+        }
     }
 
 }

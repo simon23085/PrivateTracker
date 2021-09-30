@@ -20,9 +20,6 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LocationService extends Service {
     private static final String TAG = LocationService.class.getSimpleName();
     public static final int RECORD_ON = 1;
@@ -90,9 +87,7 @@ public class LocationService extends Service {
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE); //ACCURACY_COARSE or HIGH
         //criteria.setPowerRequirement(Criteria.POWER_MEDIUM); //or low?
-        criteria.setAltitudeRequired(false);
-        //todo enable altitude?
-        //criteria.setCostAllowed(true);
+        criteria.setAltitudeRequired(true);
 
         //API level 9 and up
         criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
@@ -164,9 +159,9 @@ public class LocationService extends Service {
                     try {
                         Messenger m = msg.replyTo;
                         Log.i(TAG, "RECORD_DATA_OUT");
-                        Message msg2 = Message.obtain(null,  RECORD_DATA_OUT);
+                        Message msg2 = Message.obtain(null, RECORD_DATA_OUT);
                         Bundle bundle = new Bundle();
-                        bundle.putSerializable("obj", new Result(linearRegression.getLocations()));
+                        bundle.putParcelable("obj", new Result(linearRegression.getLocations()));
                         msg2.setData(bundle);
                         m.send(msg2);
                     } catch (RemoteException e) {

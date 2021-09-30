@@ -1,5 +1,7 @@
 package org.eim_systems.privatetracker;
 
+import static java.lang.Thread.sleep;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -7,12 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,11 +23,6 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import static java.lang.Thread.sleep;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -123,27 +118,20 @@ public class MainActivity extends Activity implements SensorEventListener {
                         pause_resume.setEnabled(false);
                         sensorManager.unregisterListener(this);
                         Log.d(TAG, "StepCounterListener unregistered");
-                        if(result==null){
+                        if (result == null) {
                             Log.e(TAG, "result obj is null");
                         }
                         Context context = getApplicationContext();
                         //todo run it on a extra thread with a delay to wait that result is set
-                        new Thread(new Runnable() {
+                        Handler h = new Handler() {
                             @Override
-                            public void run() {
-                                while(result==null){
-                                    try {
-                                        wait(100);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Intent intent = new Intent(context, ResultActivity.class);
-                                    intent.putExtra("result", result);
-                                    startActivity(intent);
-
-                                }
+                            public void handleMessage(Message msg) {
+                                Intent intent = new Intent(context, ResultActivity.class);
+                                intent.putExtra("result", result);
+                                startActivity(intent);
                             }
-                        }).start();
+                        };
+                        h.sendEmptyMessageDelayed(0, 1000);
 
                     } catch (RemoteException e) {
                         Log.e(TAG, e.getMessage());
@@ -304,18 +292,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                     Log.i(TAG, s);
                     tv.setText(s);
                     break;
-                    case LocationService.ERROR:
-                        Log.e(TAG, "got error from LocationService");
-                        break;
-                    case LocationService.RECORD_DATA_OUT:
-                        Log.i(TAG, "RECORD_DATA_OUT");
-                        result = (Result) msg.getData().get("obj");
-                        if(result != null){
-                            Log.i(TAG, "result object received");
-                        } else {
-                            Log.e(TAG, "result object not received or was null");
-                        }
-                        break;
+                case LocationService.ERROR:
+                    Log.e(TAG, "got error from LocationService");
+                    break;
+                case LocationService.RECORD_DATA_OUT:
+                    Log.i(TAG, "RECORD_DATA_OUT");
+                    result = (Result) msg.getData().get("obj");
+                    if (result != null) {
+                        Log.i(TAG, "result object received");
+                    } else {
+                        Log.e(TAG, "result object not received or was null");
+                    }
+                    break;
                 default:
                     Log.i(TAG, "default" + msg.what + " \n ");
                     super.handleMessage(msg);

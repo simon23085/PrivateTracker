@@ -4,7 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2203125" />
-        <entry key="app/src/main/res/layout/activity_result.xml" value="0.2760416666666667" />
+        <entry key="app/src/main/res/layout/activity_result.xml" value="0.1" />
       </map>
     </option>
   </component>
@@ -17,7 +17,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.2760416666666667" />
+        <option name="scale" value="0.1" />
       </ProjectState>
     </option>
   </component>
