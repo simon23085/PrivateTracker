@@ -76,7 +76,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         stepCounter_tw.setText(getString(R.string.stepcounter, 0));
 
         final Messenger mMessenger = new Messenger(new IncomingHandler(this, textView));
-
+        startService(new Intent(this, LocationService.class));
 
         start_stop.setOnClickListener(v -> {
             Log.i(TAG, "start_stop.setOnClickListener();\n");
@@ -239,6 +239,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy()");
+        stopService(new Intent(this, LocationService.class));
     }
 
     @Override
