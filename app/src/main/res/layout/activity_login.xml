@@ -10,21 +10,58 @@
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="168dp"
         android:layout_marginTop="104dp"
         android:text="@string/login"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/space10"
         app:layout_constraintTop_toBottomOf="@+id/password_field" />
 
     <EditText
         android:id="@+id/password_field"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="112dp"
-        android:layout_marginTop="280dp"
         android:ems="10"
         android:inputType="textPassword"
+        app:layout_constraintStart_toEndOf="@+id/space9"
+        app:layout_constraintTop_toBottomOf="@+id/space8" />
+
+    <ImageView
+        android:id="@+id/fingerprintImageView"
+        android:layout_width="168dp"
+        android:layout_height="103dp"
+        android:layout_marginBottom="72dp"
+        android:src="@drawable/fingerprint_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/space10" />
+
+    <TextView
+        android:id="@+id/fingerprintTextView"
+        android:layout_width="167dp"
+        android:layout_height="68dp"
+        android:text="@string/finger_instr"
+        app:layout_constraintBottom_toTopOf="@+id/fingerprintImageView"
+        app:layout_constraintStart_toEndOf="@+id/space10"
+        app:layout_constraintTop_toBottomOf="@+id/login_button" />
+
+    <Space
+        android:id="@+id/space8"
+        android:layout_width="407dp"
+        android:layout_height="175dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Space
+        android:id="@+id/space9"
+        android:layout_width="102dp"
+        android:layout_height="554dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/space8" />
+
+    <Space
+        android:id="@+id/space10"
+        android:layout_width="39dp"
+        android:layout_height="513dp"
+        app:layout_constraintStart_toEndOf="@+id/space9"
+        app:layout_constraintTop_toBottomOf="@+id/password_field" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
