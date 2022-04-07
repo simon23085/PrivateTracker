@@ -27,7 +27,8 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements SensorEventListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 123;
-    private static final int PERMISSION_REQUEST_ACTIVITY_RECOGNITION = 1234;
+    private static final int REQUEST_PERMISSION_ACTIVITY_RECOGNITION = 1234;
+    private static final int REQUEST_PERMISSION_BACKGROUND_LOCATION = 4711;
     private Messenger mService = null;
 
     private boolean started = false;
@@ -65,7 +66,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
+        }
+        if(checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION)!= PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, REQUEST_PERMISSION_ACTIVITY_RECOGNITION);
+        }
+        if(checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)!=PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},REQUEST_PERMISSION_BACKGROUND_LOCATION);
         }
         final Button start_stop = findViewById(R.id.start_stop);
         final Button pause_resume = findViewById(R.id.pause_resume);
@@ -185,7 +192,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         });
         //stepCounter:
         if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, PERMISSION_REQUEST_ACTIVITY_RECOGNITION);
+            requestPermissions(new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, REQUEST_PERMISSION_ACTIVITY_RECOGNITION);
         }
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
