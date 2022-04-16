@@ -105,15 +105,15 @@ public class LocationService extends Service {
                 }
             };
 
-
-            task.addOnSuccessListener((Executor) this, new OnSuccessListener<LocationSettingsResponse>() {
+            //todo fix this
+            /*task.addOnSuccessListener((Executor) this, new OnSuccessListener<LocationSettingsResponse>() {
                 @Override
                 public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                     // All location settings are satisfied. The client can initialize
                     // location requests here.
                     // ...
                 }
-            });
+            });*/
 
             /*task.addOnFailureListener(this, new OnFailureListener() {
                 @Override
