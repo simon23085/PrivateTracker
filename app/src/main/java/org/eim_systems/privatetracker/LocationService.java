@@ -99,7 +99,7 @@ public class LocationService extends Service {
                         return;
                     }
                     for (Location location : locationResult.getLocations()) {
-                        // todo process location updates
+                        processLocationUpdates(location);
 
                     }
                 }
@@ -150,14 +150,7 @@ public class LocationService extends Service {
             LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    if (on && active) {
-                        linearRegression.appendLocation(location);
-                        distance = linearRegression.getDistance();
-                    }
-                    Log.i(TAG, location.toString());
-                    //locations.add(location);
-                    Log.i(TAG, "accuracy:" + location.getAccuracy());
-                    Log.i(TAG, "current distance: " + distance);
+                    processLocationUpdates(location);
                 }
 
                 @Override
@@ -206,6 +199,17 @@ public class LocationService extends Service {
             locationManager.requestLocationUpdates(p, 500, 0, locationListener);
         }
 
+    }
+
+    private void processLocationUpdates(Location location) {
+        if (on && active) {
+            linearRegression.appendLocation(location);
+            distance = linearRegression.getDistance();
+        }
+        Log.i(TAG, location.toString());
+        //locations.add(location);
+        Log.i(TAG, "accuracy:" + location.getAccuracy());
+        Log.i(TAG, "current distance: " + distance);
     }
 
 
