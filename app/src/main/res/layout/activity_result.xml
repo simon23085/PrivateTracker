@@ -106,21 +106,61 @@
         android:id="@+id/space7"
         android:layout_width="46dp"
         android:layout_height="50dp"
-        app:layout_constraintStart_toStartOf="@+id/space6"
-        app:layout_constraintTop_toBottomOf="@+id/space6" />
+        app:layout_constraintStart_toStartOf="@+id/space5"
+        app:layout_constraintTop_toBottomOf="@+id/textviewName" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/saveBtn"
         android:layout_width="93dp"
         android:layout_height="50dp"
         android:text="@string/save"
         app:layout_constraintStart_toEndOf="@+id/space7"
-        app:layout_constraintTop_toBottomOf="@+id/space6" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
 
     <Space
         android:layout_width="46dp"
         android:layout_height="50dp"
-        app:layout_constraintStart_toEndOf="@+id/button"
-        app:layout_constraintTop_toTopOf="@+id/button" />
+        app:layout_constraintStart_toEndOf="@+id/saveBtn"
+        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+
+    <TextView
+        android:id="@+id/textviewName"
+        android:layout_width="78dp"
+        android:layout_height="48dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="@+id/result_up_tv"
+        app:layout_constraintTop_toBottomOf="@+id/space6" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="121dp"
+        android:layout_height="48dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Name"
+        app:layout_constraintStart_toEndOf="@+id/textviewName"
+        app:layout_constraintTop_toBottomOf="@+id/space6" />
+
+    <Space
+        android:id="@+id/space11"
+        android:layout_width="187dp"
+        android:layout_height="49dp"
+        app:layout_constraintStart_toStartOf="@+id/result_down_tv"
+        app:layout_constraintTop_toBottomOf="@+id/saveBtn" />
+
+    <Space
+        android:id="@+id/space12"
+        android:layout_width="51dp"
+        android:layout_height="48dp"
+        app:layout_constraintStart_toStartOf="@+id/result_up_tv"
+        app:layout_constraintTop_toBottomOf="@+id/space11" />
+
+    <Button
+        android:id="@+id/exportBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exportGPX"
+        app:layout_constraintStart_toEndOf="@+id/space12"
+        app:layout_constraintTop_toBottomOf="@+id/space11" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

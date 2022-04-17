@@ -69,6 +69,10 @@ public class Result implements Parcelable {
         }
     };
 
+    public ArrayList<Location> getLocations() {
+        return locations;
+    }
+
     private Result(Parcel in) {
         locations = in.readArrayList(ArrayList.class.getClassLoader());
     }

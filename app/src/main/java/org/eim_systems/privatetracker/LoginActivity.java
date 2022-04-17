@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -91,7 +92,9 @@ public class LoginActivity extends Activity {
                 }
             }
         } else {
-            //todo add
+            //todo use alternative login
+            fingerprintImageView.setVisibility(View.INVISIBLE);
+            fingerprintTextView.setVisibility(View.INVISIBLE);
         }
         login_button.setOnClickListener(v -> {
             checkLogin();

@@ -25,4 +25,6 @@
     <string name="screen_sec_required">You need to secure your Screen to use the feature</string>
     <string name="fingerprint_permission_req">The app requires the permission for the fingerprint to use it</string>
     <string name="fingerprint_req">At least one fingerprint required</string>
+    <string name="enter_name">Please enter a name</string>
+    <string name="exportGPX">Export to GPX</string>
 </resources>
