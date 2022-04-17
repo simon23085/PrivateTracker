@@ -27,4 +27,7 @@
     <string name="fingerprint_req">At least one fingerprint required</string>
     <string name="enter_name">Please enter a name</string>
     <string name="exportGPX">Export to GPX</string>
+    <string name="enter_filename">Enter a filename</string>
+    <string name="enter_trackname">Enter a name for the track</string>
+    <string name="trackname">Trackname:</string>
 </resources>

@@ -12,7 +12,9 @@
         android:layout_width="185dp"
         android:layout_height="60dp"
         android:text="@string/result_headline"
-        app:layout_constraintStart_toStartOf="@+id/result_down_tv"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space2" />
 
     <TextView
@@ -20,7 +22,8 @@
         android:layout_width="92dp"
         android:layout_height="30dp"
         android:text="@string/distance"
-        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space3" />
 
     <TextView
@@ -28,7 +31,8 @@
         android:layout_width="92dp"
         android:layout_height="43dp"
         android:text="@string/up"
-        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space4" />
 
     <TextView
@@ -36,15 +40,9 @@
         android:layout_width="93dp"
         android:layout_height="30dp"
         android:text="@string/down"
-        app:layout_constraintStart_toEndOf="@+id/space"
-        app:layout_constraintTop_toBottomOf="@+id/space5" />
-
-    <Space
-        android:id="@+id/space"
-        android:layout_width="89dp"
-        android:layout_height="729dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/space5" />
 
     <TextView
         android:id="@+id/result_distance"
@@ -69,30 +67,34 @@
 
     <Space
         android:id="@+id/space3"
-        android:layout_width="185dp"
-        android:layout_height="83dp"
-        app:layout_constraintStart_toStartOf="@+id/result_down_tv"
+        android:layout_width="180dp"
+        android:layout_height="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headLine_Result" />
 
     <Space
         android:id="@+id/space2"
         android:layout_width="185dp"
         android:layout_height="52dp"
-        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Space
         android:id="@+id/space4"
         android:layout_width="185dp"
         android:layout_height="40dp"
-        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/result_distance_tv" />
 
     <Space
         android:id="@+id/space5"
         android:layout_width="185dp"
         android:layout_height="50dp"
-        app:layout_constraintStart_toEndOf="@+id/space"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/result_up_tv" />
 
     <Space
@@ -102,65 +104,53 @@
         app:layout_constraintStart_toStartOf="@+id/result_down_tv"
         app:layout_constraintTop_toBottomOf="@+id/result_down_tv" />
 
-    <Space
-        android:id="@+id/space7"
-        android:layout_width="46dp"
-        android:layout_height="50dp"
-        app:layout_constraintStart_toStartOf="@+id/space5"
-        app:layout_constraintTop_toBottomOf="@+id/textviewName" />
-
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="93dp"
         android:layout_height="50dp"
+        android:elevation="2dp"
         android:text="@string/save"
-        app:layout_constraintStart_toEndOf="@+id/space7"
-        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
-
-    <Space
-        android:layout_width="46dp"
-        android:layout_height="50dp"
-        app:layout_constraintStart_toEndOf="@+id/saveBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextName" />
 
     <TextView
         android:id="@+id/textviewName"
-        android:layout_width="78dp"
+        android:layout_width="112dp"
         android:layout_height="48dp"
-        android:text="TextView"
-        app:layout_constraintStart_toStartOf="@+id/result_up_tv"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/trackname"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space6" />
 
     <EditText
         android:id="@+id/editTextName"
         android:layout_width="121dp"
         android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="52dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintStart_toEndOf="@+id/textviewName"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/space6" />
-
-    <Space
-        android:id="@+id/space11"
-        android:layout_width="187dp"
-        android:layout_height="49dp"
-        app:layout_constraintStart_toStartOf="@+id/result_down_tv"
-        app:layout_constraintTop_toBottomOf="@+id/saveBtn" />
-
-    <Space
-        android:id="@+id/space12"
-        android:layout_width="51dp"
-        android:layout_height="48dp"
-        app:layout_constraintStart_toStartOf="@+id/result_up_tv"
-        app:layout_constraintTop_toBottomOf="@+id/space11" />
 
     <Button
         android:id="@+id/exportBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/exportGPX"
-        app:layout_constraintStart_toEndOf="@+id/space12"
-        app:layout_constraintTop_toBottomOf="@+id/space11" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/space13" />
+
+    <Space
+        android:id="@+id/space13"
+        android:layout_width="162dp"
+        android:layout_height="52dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/saveBtn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
