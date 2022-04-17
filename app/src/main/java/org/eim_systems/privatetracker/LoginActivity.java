@@ -5,20 +5,16 @@ import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.biometrics.BiometricManager;
-import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.core.app.ActivityCompat;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -68,25 +64,25 @@ public class LoginActivity extends Activity {
         fingerprintManager =
                 (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
         if (hasFingerprint | fingerprintManager.isHardwareDetected()) {
-            if(checkSelfPermission(Manifest.permission.USE_FINGERPRINT)!=PackageManager.PERMISSION_GRANTED){
-                //todo display that it requires the permission
+            if (checkSelfPermission(Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), getString(R.string.fingerprint_permission_req), Toast.LENGTH_SHORT).show();
             } else {
-                if(!fingerprintManager.hasEnrolledFingerprints()){
-                    //todo can't use it, display
+                if (!fingerprintManager.hasEnrolledFingerprints()) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.fingerprint_req), Toast.LENGTH_SHORT).show();
                 } else {
-                    if(!keyguardManager.isKeyguardSecure()){
-                        //todo display that the user needs to secure the screen
+                    if (!keyguardManager.isKeyguardSecure()) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.screen_sec_required), Toast.LENGTH_SHORT).show();
                     } else {
                         try {
                             generateKey();
                         } catch (FingerprintException e) {
                             e.printStackTrace();
                         }
-                        if(initCipher()){
+                        if (initCipher()) {
                             FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
                             FingerprintHandler helper = new FingerprintHandler(this);
                             helper.startAuth(fingerprintManager, cryptoObject);
-                            helper.setListener(() -> {
+                            helper.setSuccessListener(() -> {
                                 System.out.println("fingerprint login successful");
                                 login();
                             });
@@ -97,19 +93,13 @@ public class LoginActivity extends Activity {
         } else {
             //todo add
         }
-        /*
-        if not has fingerprint sensor then set fingerprintImageView to invisible and also the text
-         */
-        //todo https://www.androidauthority.com/how-to-add-fingerprint-authentication-to-your-android-app-747304/
-        //todo https://developer.android.com/training/articles/keystore
-
-
         login_button.setOnClickListener(v -> {
-           checkLogin();
+            checkLogin();
         });
 
 
     }
+
     /**
      * @author https://www.androidauthority.com/how-to-add-fingerprint-authentication-to-your-android-app-747304/
      */
@@ -189,11 +179,13 @@ public class LoginActivity extends Activity {
             super(e);
         }
     }
-    private void login(){
+
+    private void login() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-    private void checkLogin(){
+
+    private void checkLogin() {
         //todo check if the credentials are correct
         login();
     }

@@ -22,4 +22,7 @@
     <string name="down">down:</string>
     <string name="save">save</string>
     <string name="finger_instr"> Place your fingertip on the  fingerprint sensor to verify your identity</string>
+    <string name="screen_sec_required">You need to secure your Screen to use the feature</string>
+    <string name="fingerprint_permission_req">The app requires the permission for the fingerprint to use it</string>
+    <string name="fingerprint_req">At least one fingerprint required</string>
 </resources>
