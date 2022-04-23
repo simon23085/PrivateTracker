@@ -199,7 +199,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (sensor == null) {
             Toast.makeText(this, "No sensor detected on this device", Toast.LENGTH_SHORT).show();
         }
-        //Log.d(TAG, "\n \n  pedometer: \n " + sensor.getName() + sensor.getStringType() + sensor.isDynamicSensor() + sensor.getVendor() + sensor.getVersion() + sensor.getId());
+        Button storedBtn = findViewById(R.id.storedBtn);
+        storedBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StoredActivity.class);
+            startActivity(intent);
+
+        });
 
         //keeps the distance field up to date
         //todo rewrite updater as handler

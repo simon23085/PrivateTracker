@@ -29,7 +29,7 @@ public class PersistenceManager {
                     TrackEntries.COLUMN_NAME_TIME +" INTEGER)";
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + TrackEntries.TABLE_NAME;
-    private final String sortOrder = TrackEntries.COLUMN_NAME_DATE + "DESC";
+    private final String sortOrder = TrackEntries.COLUMN_NAME_DATE + " DESC";
     private PersistenceManager(){
     }
     public static PersistenceManager getInstance(){
