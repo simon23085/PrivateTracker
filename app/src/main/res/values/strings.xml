@@ -123,4 +123,6 @@
     <string name="action_settings">Settings</string>
     <string name="view_saved">View saved</string>
     <string name="result">Result</string>
+    <string name="name">name</string>
+    <string name="date">Date:</string>
 </resources>
